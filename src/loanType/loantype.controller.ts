@@ -40,7 +40,7 @@ export class LoanTypeController {
         this.responseService.sendResponse({}, res, SUCCESS.CODE, {
           code: '1019',
           data: {
-            user_id: (createdUser as any).user_id,
+            loan_id: (createdUser as any).loan_id,
             created_at: (createdUser as any).created_at,
           }
         }, '1019');
@@ -146,7 +146,7 @@ export class LoanTypeController {
         this.responseService.sendResponse({}, res, SUCCESS.CODE, {
           code: '1020',
           data: {
-            user_id: (updateUser as any).user_id,
+            loan_id: (updateUser as any).loan_id,
             updated_at: (updateUser as any).updated_at,
           }
         }, '1020');
@@ -177,7 +177,7 @@ export class LoanTypeController {
     try {
       const deletedUser = await this.loanTypeService.remove(id);
       if (deletedUser) {
-        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1021', data: { _id: (deletedUser as any).id } }, '1021');
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1021', data: { loan_id: (deletedUser as any).loan_id } }, '1021');
       }
       else {
         this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');

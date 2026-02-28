@@ -8,9 +8,10 @@ export class UpdateUserDto {
   user_name?: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  user_type: number; 
+  @IsOptional()
+  user_type: string; 
 
   @ApiProperty({ required: false })
   @IsString()

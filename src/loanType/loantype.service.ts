@@ -33,26 +33,26 @@ export class LoantypeService {
       where,
       take: limit,
       skip,
-      order: { id: 'DESC' },
+      order: { loan_id: 'DESC' },
     });
 
     return { loantypeList, count };
   }
 
-  async findOne(id: number) {
-    const user = await this.loanTypeRepo.findOne({ where: { id } });
-    if (!user) throw new NotFoundException(`User with id ${id} not found`);
+  async findOne(loan_id: number) {
+    const user = await this.loanTypeRepo.findOne({ where: { loan_id } });
+    if (!user) throw new NotFoundException(`User with id ${loan_id} not found`);
     return user;
   }
 
-  async update(id: number, dto: UpdateLoantypeDto) {
-    const user = await this.findOne(id);
+  async update(loan_id: number, dto: UpdateLoantypeDto) {
+    const user = await this.findOne(loan_id);
     Object.assign(user, dto);
     return await this.loanTypeRepo.save(user);
   }
 
-  async remove(id: number) {
-    const user = await this.findOne(id);
+  async remove(loan_id: number) {
+    const user = await this.findOne(loan_id);
     return await this.loanTypeRepo.remove(user);
   }
 }

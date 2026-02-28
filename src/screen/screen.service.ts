@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, In } from 'typeorm';
 import { Screen } from './screen.entity';
-import { Role } from '../role/role.entity';
 import { CreateScreenDto } from './dto/create-screen.dto';
 import { UpdateScreenDto } from './dto/update-screen.dto';
 
@@ -11,43 +10,13 @@ export class ScreenService {
   constructor(
     @InjectRepository(Screen) 
     private screenRepo: Repository<Screen>,
-    
-    @InjectRepository(Role) 
-    private roleRepo: Repository<Role>,
   ) {}
 
   async create(dto: CreateScreenDto) {
-    const { role_ids, ...screenData } = dto;
-
-    // Find roles by IDs
-    const roles = await this.roleRepo.findBy({
-      id: In(role_ids),
-    });
-
-    // Validate all roles exist
-    if (roles.length !== role_ids.length) {
-      const foundIds = roles.map(r => r.id);
-      const missingIds = role_ids.filter(id => !foundIds.includes(id));
-      throw new BadRequestException(
-        `Role IDs not found: ${missingIds.join(', ')}`
-      );
-    }
-
-    // Create screen with roles
-    const screen = this.screenRepo.create({
-      ...screenData,
-      roles,
-    });
-
-    // Save with cascade
-    const savedScreen = await this.screenRepo.save(screen);
-
-    // Return with relations
-    return await this.screenRepo.findOne({
-      where: { id: savedScreen.id },
-      relations: ['roles'],
-    });
+    const screen = this.screenRepo.create(dto);
+    return await this.screenRepo.save(screen);
   }
+
 
   async findAll(params: { limit?: number; skip?: number; status?: string }) {
     const { limit = 10, skip = 0, status } = params || {};
@@ -62,74 +31,40 @@ export class ScreenService {
       where,
       take: limit,
       skip,
-      order: { id: 'DESC' },
-      relations: ['roles'],
+      order: { screen_id: 'DESC' }
     });
 
     return { screenList, count };
   }
 
-  async findOne(id: number) {
+  async findOne(screen_id: number) {
     const screen = await this.screenRepo.findOne({ 
-      where: { id },
-      relations: ['roles'],
+      where: { screen_id }
     });
     
     if (!screen) {
-      throw new NotFoundException(`Screen with id ${id} not found`);
+      throw new NotFoundException(`Screen with id ${screen_id} not found`);
     }
     
     return screen;
   }
 
-  async update(id: number, dto: UpdateScreenDto) {
-    const { role_ids, ...screenData } = dto;
-
-    const screen = await this.screenRepo.findOne({
-      where: { id },
-      relations: ['roles'],
-    });
-
+  async update(screen_id: number, dto: UpdateScreenDto) {
+    const screen = await this.screenRepo.findOne({ where: { screen_id } });
     if (!screen) {
-      throw new NotFoundException(`Screen with id ${id} not found`);
+      throw new NotFoundException(`Screen with id ${screen_id} not found`);
     }
-
-    // Update basic fields
-    Object.assign(screen, screenData);
-
-    // Update roles if provided
-    if (role_ids && role_ids.length > 0) {
-      const roles = await this.roleRepo.findBy({
-        id: In(role_ids),
-      });
-
-      if (roles.length !== role_ids.length) {
-        const foundIds = roles.map(r => r.id);
-        const missingIds = role_ids.filter(id => !foundIds.includes(id));
-        throw new BadRequestException(
-          `Role IDs not found: ${missingIds.join(', ')}`
-        );
-      }
-
-      screen.roles = roles;
-    }
-
-    const updatedScreen = await this.screenRepo.save(screen);
-
-    return await this.screenRepo.findOne({
-      where: { id: updatedScreen.id },
-      relations: ['roles'],
-    });
+    Object.assign(screen, dto);
+    return await this.screenRepo.save(screen);
   }
 
-  async remove(id: number) {
+  async remove(screen_id: number) {
     const screen = await this.screenRepo.findOne({
-      where: { id },
-      relations: ['roles'],
+      where: { screen_id }
     });
 
     if (!screen) {
-      throw new NotFoundException(`Screen with id ${id} not found`);
+      throw new NotFoundException(`Screen with id ${screen_id} not found`);
     }
 
     return await this.screenRepo.remove(screen);

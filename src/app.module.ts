@@ -9,12 +9,15 @@ import { AppService } from './app.service';
 import { LoggerMiddleware } from './config/logger';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
-import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
 import { ScreenModule } from './screen/screen.module';
 import { LoanTypeModule } from './loanType/loantype.module';
 import { LoanDocCheckListModule } from './loandoc_checklist/loandoc_checklist.module';
 import { LoanCompanyModule } from './company_details/company_details.module';
+import { ProcessingFeesModule } from './processing_fees/processing.module';
+import { CustomerLoanDetailsModule } from './customer-loan/customer_loan.module';
+import { TransactionModule } from './transaction/transaction.module';
+import { AgentDayWiseBalanceModule } from './agent-daywise-balance/agent-daywise.module';
 
 @Module({
   imports: [
@@ -43,11 +46,14 @@ import { LoanCompanyModule } from './company_details/company_details.module';
     // ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'static'), }),
     AuthModule,
     UsersModule,
-    RoleModule,
     ScreenModule,
     LoanTypeModule,
     LoanDocCheckListModule,
     LoanCompanyModule,
+    ProcessingFeesModule,
+    CustomerLoanDetailsModule,
+    TransactionModule,
+    AgentDayWiseBalanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

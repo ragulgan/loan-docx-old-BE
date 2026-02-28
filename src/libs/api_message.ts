@@ -14,11 +14,7 @@ export const apimsgconfig = {
         1007: 'User deleted successfully.',
         1008: 'User mobile number duplicate entry!',
         1009: 'User aadhar number duplicate entry!',
-
-        // role
-        1010: 'Role created successfully.',
-        1011: 'Role updated successfully.',
-        1012: 'Role deleted successfully.',
+        1031: 'Password updated successfully.',
 
         // login
         1013: 'You have successfully logged in.',
@@ -49,5 +45,16 @@ export const apimsgconfig = {
         1028: 'Loan processing fee created successfully.',
         1029: 'Loan processing fee updated successfully.',
         1030: 'Loan processing fee deleted successfully.',
+
+        // customer loan application
+        1032: 'Loan application created successfully.',
+        1033: 'Loan application updated successfully.',
+        1034: 'Loan application deleted successfully.',
+
+        // transaction details
+        1035: 'Transaction created successfully.',
+        1036: 'Transaction updated successfully.',
+        1037: 'Transaction deleted successfully.',
+        1038: 'Transaction approved successfully.',
     }
 };

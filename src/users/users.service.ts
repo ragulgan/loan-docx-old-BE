@@ -5,11 +5,14 @@ import { User } from './users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { Screen } from 'src/screen/screen.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(Screen) private screenRepo: Repository<Screen>,
   ) { }
 
   async create(dto: CreateUserDto) {
@@ -30,14 +33,8 @@ export class UsersService {
         throw new BadRequestException({ code: 1009, message: 'User aadhar number duplicate entry!' });
       }
     }
-    const userCount = await this.userRepo.count();
-    const nextNumber = userCount + 1;
-    const userId = `LDX${nextNumber.toString().padStart(2, '0')}`;
 
-    const user = this.userRepo.create({
-      ...dto,
-      user_id: userId
-    });
+    const user = this.userRepo.create(dto);
     return await this.userRepo.save(user);
   }
 
@@ -81,8 +78,7 @@ export class UsersService {
       where,
       take: limit,
       skip,
-      order: { id: 'DESC' },
-      relations: ['role'],
+      order: { user_id: 'DESC' }
     });
 
     return { userList, count };
@@ -94,18 +90,19 @@ export class UsersService {
     });
   }
 
-  async findOne(id: number) {
-    const user = await this.userRepo.findOne({ where: { id }, relations: ['role'] });
-    if (!user) throw new NotFoundException(`User with id ${id} not found`);
+  async findOne(user_id: string) {
+    const user = await this.userRepo.findOne({ where: { user_id } });
+    if (!user) throw new NotFoundException(`User with id ${user_id} not found`);
     return user;
   }
 
   async userLogin(req: any) {
-    const user: any = await this.userRepo.findOne({ 
-      where: { email_id: req.email }, 
-      relations: ['role', 'role.screens'],
+    const user: any = await this.userRepo.findOne({
+      where: {
+        user_id: req.userId,
+        user_active: 'Y'
+      },
       select: {
-        id: true,
         user_id: true,
         user_name: true,
         mobile_number: true,
@@ -127,21 +124,23 @@ export class UsersService {
       return false;
     }
     delete user.user_pwd;
-    if (user.role && user.role.screens) {
-      user.role.screens = user.role.screens.filter(
-        (screen: any) => screen.screen_active === 'Y'
-      );
-    }
-    return user;
+    const screens = await this.screenRepo.find({
+      where: {
+        user_type: user.user_type,
+        screen_active: 'Y'
+      },
+      order: { screen_id: 'ASC' }
+    });
+    return { ...user, screens };
   }
 
-  async update(id: number, dto: UpdateUserDto) {
-    const user = await this.findOne(id);
+  async update(user_id: string, dto: UpdateUserDto) {
+    const user = await this.findOne(user_id);
     if (dto.mobile_number && String(dto.mobile_number) !== String(user.mobile_number)) {
       const existMobile = await this.userRepo.findOne({
         where: { mobile_number: dto.mobile_number }
       });
-      if (existMobile && existMobile.id !== id) {
+      if (existMobile && existMobile.user_id !== user_id) {
         throw new BadRequestException({ code: 1008, message: 'User mobile number duplicate entry!' });
       }
     }
@@ -150,7 +149,7 @@ export class UsersService {
       const existAadhar = await this.userRepo.findOne({
         where: { aadhar_number: dto.aadhar_number }
       });
-      if (existAadhar && existAadhar.id !== id) {
+      if (existAadhar && existAadhar.user_id !== user_id) {
         throw new BadRequestException({ code: 1009, message: 'User aadhar number duplicate entry!' });
       }
     }
@@ -158,8 +157,22 @@ export class UsersService {
     return await this.userRepo.save(user);
   }
 
-  async remove(id: number) {
-    const user = await this.findOne(id);
+  async updatePassword(user_id: string, user_type: string, dto: ChangePasswordDto) {
+    const user = await this.userRepo.findOne({
+      where: {
+        user_id: user_id,
+        user_type: user_type
+      }
+    });
+    if (!user) {
+    throw new NotFoundException('User not found');
+  }
+    user.user_pwd = dto.newPassword;
+    return await this.userRepo.save(user);
+  }
+
+  async remove(user_id: string) {
+    const user = await this.findOne(user_id);
     return await this.userRepo.remove(user);
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Res, BadRequestException, Query, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Res, BadRequestException, Query, Request, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,7 +6,9 @@ import { ApiTags, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseService } from '../base/controller';
 import { appConst } from '../libs/constant';
 import * as _ from 'lodash';
-import { AdminGuard, JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AdminGuard, JwtAuthGuard, AgentGuard } from 'src/auth/jwt-auth.guard';
+import { verifyAndExtractToken } from '../utill/utill';
+import { ChangePasswordDto } from './dto/change-password.dto';
 const { ERROR, SUCCESS } = appConst;
 
 @ApiTags('users')
@@ -40,7 +42,7 @@ export class UsersController {
         this.responseService.sendResponse({}, res, SUCCESS.CODE, {
           code: '1005',
           data: {
-            id: (createdUser as any).id,
+            user_id: (createdUser as any).user_id,
             created_at: (createdUser as any).created_at,
           }
         }, '1005');
@@ -61,6 +63,42 @@ export class UsersController {
       }
       this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
       // throw new BadRequestException();
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('change-password')
+  @ApiResponse({ status: 200, description: 'Ok.',  
+    schema: {
+    example: {
+      code: 0,
+      messageCode: 0,
+      data: {},
+      message: 'string',
+    }
+  }})
+  @ApiResponse({ status: 201, description: 'Created.'})
+  @ApiResponse({ status: 401, description: 'Unauthorized.'})
+  @ApiResponse({ status: 403, description: 'Forbidden.'})
+  @ApiResponse({ status: 404, description: 'Not Found.'})
+  async updatePassword(@Body() dto: ChangePasswordDto, @Request() req: any, @Res() res: any) {
+    try {
+      const updateUserPassword = await this.usersService.updatePassword(dto.userId, dto.userType, dto);
+      if (updateUserPassword) {
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, {
+          code: '1031',
+          data: {
+            user_id: (updateUserPassword as any).user_id,
+            updated_at: (updateUserPassword as any).updated_at,
+          }
+        }, '1031');
+      } else {
+        this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');
+      }
+    } catch (e) {
+      console.log('test============>', e)
+      throw new BadRequestException();
     }
   }
 
@@ -119,7 +157,7 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'Unauthorized.'})
   @ApiResponse({ status: 403, description: 'Forbidden.'})
   @ApiResponse({ status: 404, description: 'Not Found.'})
-  async findOne(@Param('id') id: number, @Request() req, @Res() res: any) {
+  async findOne(@Param('id') id: string, @Request() req, @Res() res: any) {
     try {
       const getUserById = await this.usersService.findOne(id)
       if (!_.isEmpty(getUserById)) {
@@ -151,14 +189,14 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'Unauthorized.'})
   @ApiResponse({ status: 403, description: 'Forbidden.'})
   @ApiResponse({ status: 404, description: 'Not Found.'})
-  async update(@Param('id') id: number, @Body() dto: UpdateUserDto, @Res() res: any) {
+  async update(@Param('id') id: string, @Body() dto: UpdateUserDto, @Res() res: any) {
     try {
       const updateUser = await this.usersService.update(id, dto);
       if (updateUser) {
         this.responseService.sendResponse({}, res, SUCCESS.CODE, {
           code: '1006',
           data: {
-            id: (updateUser as any).id,
+            user_id: (updateUser as any).user_id,
             updated_at: (updateUser as any).updated_at,
           }
         }, '1006');
@@ -195,11 +233,11 @@ export class UsersController {
 @ApiResponse({ status: 401, description: 'Unauthorized.'})
 @ApiResponse({ status: 403, description: 'Forbidden.'})
 @ApiResponse({ status: 404, description: 'Not Found.'})
-  async remove(@Param('id') id: number, @Res() res: any) {
+  async remove(@Param('id') id: string, @Res() res: any) {
     try {
       const deletedUser = await this.usersService.remove(id);
       if (deletedUser) {
-        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1007', data: { _id: (deletedUser as any).id } }, '1007');
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1007', data: { user_id: (deletedUser as any).user_id } }, '1007');
       }
       else {
         this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');

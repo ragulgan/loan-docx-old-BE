@@ -11,7 +11,7 @@ import { ResponseService } from '../base/controller';
 import { UsersModule } from "../users/users.module";
 import { UsersService } from "../users/users.service";
 import { User } from '../users/users.entity';
-import { Role } from '../role/role.entity';
+import { Screen } from 'src/screen/screen.entity';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { Role } from '../role/role.entity';
       secret: 'mySecretKey123',
       signOptions: { expiresIn: '30d' },
     }),
-    TypeOrmModule.forFeature([User, Role]),
+    TypeOrmModule.forFeature([User, Screen]),
     UsersModule,
 ],
   controllers: [AuthController],

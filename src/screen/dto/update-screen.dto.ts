@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, MaxLength, IsArray, IsIn } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsArray, IsIn, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UpdateScreenDto {
@@ -22,8 +22,7 @@ export class UpdateScreenDto {
   screen_active?: string;
 
   @ApiProperty()
-  @IsArray({ message: 'Role IDs must be an array' })
-  @IsOptional()
-  @Type(() => Number)
-  role_ids?: number[];
+  @IsString()
+  @IsNotEmpty()
+  user_type: string;
 }

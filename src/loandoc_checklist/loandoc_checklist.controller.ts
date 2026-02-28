@@ -58,7 +58,7 @@ export class LoanDocCheckListController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  @ApiQuery({ name: 'loan_type', required: false, description: 'Return Based on loan_id' })
+  @ApiQuery({ name: 'loan_id', required: false, description: 'Return Based on loan_id' })
   @Get()
   @ApiResponse({ status: 200, description: 'Ok.', 
     schema: {
@@ -176,7 +176,7 @@ export class LoanDocCheckListController {
     try {
       const deletedLoanDoc = await this.loandocCheckListService.remove(id);
       if (deletedLoanDoc) {
-        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1024', data: { _id: (deletedLoanDoc as any).id } }, '1024');
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1024', data: { id: (deletedLoanDoc as any).id } }, '1024');
       }
       else {
         this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');

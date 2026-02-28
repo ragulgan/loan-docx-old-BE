@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, MaxLength, IsIn, IsArray, ArrayMinSize, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CreateScreenDto {
   @ApiProperty()
@@ -22,10 +21,9 @@ export class CreateScreenDto {
   screen_active: string;
 
   @ApiProperty()
-  @IsArray({ message: 'Role IDs must be an array' })
-  @ArrayMinSize(1, { message: 'At least one role must be assigned' })
-  @Type(() => Number)
-  role_ids: number[];
+  @IsString()
+  @IsNotEmpty()
+  user_type: string; 
 }
 
 

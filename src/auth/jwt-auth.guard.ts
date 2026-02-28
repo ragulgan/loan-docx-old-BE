@@ -44,7 +44,91 @@ export class AdminGuard implements CanActivate {
                 throw new Error('JWT_SECRET is not defined');
             }
       const decoded: any = jwt.verify(token, secret);
-      return decoded?.role?.role_name === 'Admin';
+      return decoded?.user_type === 'AD';
+    } catch (err) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+}
+
+@Injectable()
+export class AgentGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+    const req = context.switchToHttp().getRequest();
+    const token = extractTokenFromHeaders(req.headers);
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
+    }
+    try {
+        const secret = process.env.JWT_SECRET;
+            if (!secret) {
+                throw new Error('JWT_SECRET is not defined');
+            }
+      const decoded: any = jwt.verify(token, secret);
+      return decoded?.user_type === 'AT';
+    } catch (err) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+}
+
+@Injectable()
+export class LegalUserGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+    const req = context.switchToHttp().getRequest();
+    const token = extractTokenFromHeaders(req.headers);
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
+    }
+    try {
+        const secret = process.env.JWT_SECRET;
+            if (!secret) {
+                throw new Error('JWT_SECRET is not defined');
+            }
+      const decoded: any = jwt.verify(token, secret);
+      return decoded?.user_type === 'LU';
+    } catch (err) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+}
+
+@Injectable()
+export class LegalHeadGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+    const req = context.switchToHttp().getRequest();
+    const token = extractTokenFromHeaders(req.headers);
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
+    }
+    try {
+        const secret = process.env.JWT_SECRET;
+            if (!secret) {
+                throw new Error('JWT_SECRET is not defined');
+            }
+      const decoded: any = jwt.verify(token, secret);
+      return decoded?.user_type === 'LH';
+    } catch (err) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+}
+
+@Injectable()
+export class CivilUserGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+    const req = context.switchToHttp().getRequest();
+    const token = extractTokenFromHeaders(req.headers);
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
+    }
+    try {
+        const secret = process.env.JWT_SECRET;
+            if (!secret) {
+                throw new Error('JWT_SECRET is not defined');
+            }
+      const decoded: any = jwt.verify(token, secret);
+      return decoded?.user_type === 'CU';
     } catch (err) {
       throw new UnauthorizedException('Invalid token');
     }

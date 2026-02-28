@@ -17,12 +17,12 @@ export class LoanDocCheckListService {
   }
 
   async findAll(params: any) {
-    const { limit = 10, skip = 0, loan_type} = params || {};
+    const { limit = 10, skip = 0, loan_id} = params || {};
 
     const where: FindOptionsWhere<LoanDocCheckList> = {};
 
-    if (loan_type) {
-      where.loan_id = loan_type;
+    if (loan_id) {
+      where.loan_id = loan_id;
     }
 
     const [loanDocCheckList, count] = await this.loanDocCheckRepo.findAndCount({

@@ -1,24 +1,40 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
-import { Role } from '../role/role.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
+import { Transaction } from '../transaction/transaction.entity';
 import * as bcrypt from 'bcrypt';
+import { CustomerLoanDetails } from 'src/customer-loan/entities/customer_loan.entity';
+import { DaywiseAgentBalance } from 'src/agent-daywise-balance/entities/agent_balance.entity';
 
 @Entity('loandocx_users_profile')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ unique: true, type: 'varchar', length: 10 })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   user_id: string;
 
   @Column({ type: 'varchar', length: 50 })
   user_name: string;
 
-  @Column({ type: 'int', name: 'user_type' })
-  user_type: number;
+  @Column({ type: 'varchar', length: 2 })
+  user_type: string;
 
-  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
-  @JoinColumn({ name: 'user_type', referencedColumnName: 'id' })
-  role: Role;
+  @OneToMany(() => CustomerLoanDetails, (loan) => loan.agent)
+  customerLoans: CustomerLoanDetails[];
+
+  @OneToMany(() => Transaction, (tx) => tx.agent)
+  agentTransactions: Transaction[];
+
+  @OneToMany(() => Transaction, (tx) => tx.legalTeamUser)
+  legalTeamTransactions: Transaction[];
+
+  @OneToMany(() => Transaction, (tx) => tx.civilTeamUser)
+  civilTeamTransactions: Transaction[];
+
+  @OneToMany(() => Transaction, (tx) => tx.legalHeadUser)
+  legalHeadTransactions: Transaction[];
+
+  @OneToMany(() => Transaction, (tx) => tx.admin)
+  adminTransactions: Transaction[];
+
+  @OneToMany(() => DaywiseAgentBalance,(balance) => balance.agent)
+  daywiseAgentBalances: DaywiseAgentBalance[];
 
   @Column({ type: 'varchar', length: 255, select: false })
   user_pwd: string;
@@ -32,23 +48,17 @@ export class User {
   @Column({ type: 'varchar', length: 200 })
   address2: string;
 
-  @Column({ unique: true, type: 'bigint' })
+  @Column({ type: 'bigint' })
   mobile_number: string;
 
-  @Column({type: 'varchar', length: 100})
+  @Column({ type: 'varchar', length: 100 })
   email_id: string;
 
-  @Column({ unique: true, type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 50 })
   aadhar_number: string;
 
   @Column({ type: 'char', length: 1 })
   user_active: string;
-
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
 
   @BeforeInsert()
   @BeforeUpdate()

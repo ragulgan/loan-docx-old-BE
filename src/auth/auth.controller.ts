@@ -37,29 +37,22 @@ export class AuthController {
   @ApiResponse({ status: 404, description: 'Not Found.'})
   async UserLogin(@Body() createUserDto: UserLoginDto, @Res() res: Response) {
     const result = await this.authService.userLogin(createUserDto);
-      // Extract screens from role
-      const screens = result && result.user.role?.screens?.map((screen: any) => ({
-        id: screen.id,
-        screen_name: screen.screen_name,
-        screen_url: screen.screen_url,
-        screen_active: screen.screen_active,
-      })) || [];
+    const screens = result && result.user.screens.map((screen: any) => ({
+      id: screen.screen_id,
+      screen_name: screen.screen_name,
+      screen_url: screen.screen_url,
+      screen_active: screen.screen_active,
+    })) || [];
     if (result && result.user.user_active !== "N") {
       this.responseService.sendResponse({}, res, SUCCESS.CODE, {
         code: '1013',
         data: {
-          id: result.user.id,
+          user_id: result.user.user_id,
           user_mobile: result.user.mobile_number,
+          user_type: result.user.user_type,
           email_id: result.user.email_id,
           status: result.user.user_active,
-          user_id: result.user.user_id,
           user_name: result.user.user_name,
-          role: {
-            id: result.user.role.id,
-            role_code: result.user.role.role_code,
-            role_name: result.user.role.role_name,
-            role_active: result.user.role.role_active,
-          },
           screens: screens,
           token: result.token
         }

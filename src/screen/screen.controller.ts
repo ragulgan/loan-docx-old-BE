@@ -40,7 +40,7 @@ export class ScreenController {
         this.responseService.sendResponse({}, res, SUCCESS.CODE, {
           code: '1016',
           data: {
-            user_id: (createdUser as any).user_id,
+            screen_id: (createdUser as any).screen_id,
             created_at: (createdUser as any).created_at,
           }
         }, '1016');
@@ -145,7 +145,7 @@ export class ScreenController {
         this.responseService.sendResponse({}, res, SUCCESS.CODE, {
           code: '1017',
           data: {
-            user_id: (updateUser as any).user_id,
+            screen_id: (updateUser as any).screen_id,
             updated_at: (updateUser as any).updated_at,
           }
         }, '1017');
@@ -176,7 +176,7 @@ export class ScreenController {
     try {
       const deletedUser = await this.usersService.remove(id);
       if (deletedUser) {
-        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1018', data: { _id: (deletedUser as any).id } }, '1018');
+        this.responseService.sendResponse({}, res, SUCCESS.CODE, { code: '1018', data: { screen_id: (deletedUser as any).screen_id } }, '1018');
       }
       else {
         this.responseService.sendResponse({}, res, ERROR.CLIENT_ERROR.BAD_REQUEST, { code: '1002' }, '1002');

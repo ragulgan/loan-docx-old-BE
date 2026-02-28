@@ -4,7 +4,7 @@ import { LoanDocCheckList } from '../loandoc_checklist/loandoc_checklist.entity'
 @Entity('loandocx_loan_types')
 export class Loantype {
   @PrimaryGeneratedColumn()
-  id: number;
+  loan_id: number;
 
   @Column({ type: 'varchar', length: 50, nullable: false })
   loan_name: string;

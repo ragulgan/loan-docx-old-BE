@@ -23,6 +23,7 @@ export function verifyAndExtractToken(headers: any) {
     }
     try {
         const decoded: any = jwt.verify(token, process.env.JWT_SECRET || '');
+        console.log('Decoded JWT Token:', decoded);
         return decoded
     } catch (error) {
         console.error('JWT Verification Error:', error.message);

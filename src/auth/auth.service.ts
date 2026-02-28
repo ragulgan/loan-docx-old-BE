@@ -26,8 +26,8 @@ export class AuthService {
         }
     }
 
-    async validateUser(mobileNumber: string, createUserDto): Promise<User> {
-        const result = await this.userService.findAll(mobileNumber);
+    async validateUser(mobile_number: string, createUserDto): Promise<User> {
+        const result = await this.userService.findAll(mobile_number);
         const user = result.userList[0];
         if (!user) {
             throw new NotAcceptableException('Could not find the user');
@@ -55,17 +55,11 @@ export class AuthService {
 
     async userGeneratePayload(userData: any) {
         return {
-            id: userData.id,
             user_id: userData.user_id,
+            user_type: userData.user_type,
             user_name: userData.user_name,
             mobile_number: userData.mobile_number,
-            email_id: userData.email_id,
-            role: {
-                id: userData.role.id,
-                role_code: userData.role.role_code,
-                role_name: userData.role.role_name,
-                role_active: userData.role.role_active,
-            },
+            email_id: userData.email_id
         }
     }
 }
